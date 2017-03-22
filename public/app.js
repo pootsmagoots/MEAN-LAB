@@ -1,4 +1,5 @@
-angular.module("meanlab", [
+angular
+.module("Mean-Lab", [
   "ui.router",
   "ngResource"
 ])
@@ -6,49 +7,53 @@ angular.module("meanlab", [
   "$stateProvider",
   Router
 ])
+.controller("homeCtrl", [
+  "Todo",
+  "$stateParams",
+  "$state",
+  homeControllerFunction
+])
+.controller("showCtrl", [
+  "$stateParams",
+  "$state",
+  showControllerFunction
+])
 .factory("Todo", [
   "$resource",
   Todo
 ])
-.controller("indexCtrl", [
-  "$state",
-  "Todo",
-  indexController
-])
-.controller("showCtrl", [
-  "$stateParams",
-  "Todo",
-  ShowController
-])
 
 function Router($stateProvider){
   $stateProvider
-  .state("welcome", {
-   url: "/",
-   templateUrl: "js/ng-views/welcome.html"
+   .state("home", {
+   url: "/todos",
+   templateUrl: "js/ng-views/home.html",
+   controller: "homeCtrl",
+   controllerAs: "vm"
   })
 .state("show", {
-  url:"/todos",
+  url:"/todos/:title",
   templateUrl: "js/ng-views/show.html",
-  controller: "indexCtrl",
+  controller: "showCtrl",
   controllerAs: "vm"
 })
 }
 
-function Todo ($resource) {
+function Todo($resource) {
   return $resource("/api/todos/:title", {}, {
     update: {method: "PUT"}
   });
 }
 
-function indexController ($state, Todo) {
-  this.Todos = Todo.query()
+function homeControllerFunction(Todo, $stateParams, $state) {
+  this.todos = Todo.query()
+
   this.create = function () {
     this.newTodo.$save().then(function(todo){
       $state.go("show", { title: todo.title})
     })
   }
 }
-function showController ($stateParams, Todo) {
+function showControllerFunction ($stateParams, $state) {
   this.todo = Todo.get({title: $stateParams.title})
 }
